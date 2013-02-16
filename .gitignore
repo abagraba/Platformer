@@ -6,6 +6,7 @@
 !.gitattributes
 !README.md
 !Assets/
+!Library/
 !ProjectSettings/
 !/*.unitypackage
 Assets/*.meta
