@@ -60,10 +60,7 @@ public class Player : MonoBehaviour {
 		}
 
 		
-		
-		Physics.IgnoreLayerCollision(8, 10, r < threshold);	
-		Physics.IgnoreLayerCollision(8, 11, g < threshold);	
-		Physics.IgnoreLayerCollision(8, 12, b < threshold);
+		collisionMask();
 		
 		core.transform.localScale = new Vector3(0.7f * health, 1.0f, 0.7f * health);
 		
@@ -71,7 +68,6 @@ public class Player : MonoBehaviour {
 		foreach (Transform child in transform){
 			foreach (Transform child2 in child.transform){
 				child2.renderer.material.color = mask(child2.renderer.material.color) * color;
-				Debug.Log(color + " " +  child2.renderer.material.color);
 			}
 		}
 		
@@ -88,10 +84,25 @@ public class Player : MonoBehaviour {
 		}
 		force.y -= rigidbody.mass*gravAccel*accelerationFactor;
 		
-//		clampForce(force);
 		force *= Time.fixedDeltaTime;
 		rigidbody.AddForce(force);
 		
+		
+	}
+	
+	private Color[] colors = new Color[]{Color.red, Color.green, Color.blue, Color.cyan, Color.magenta, Color.yellow, Color.white, Color.black};
+
+	public Color getColor(){
+		return colors[gameObject.layer-10];	
+	}
+	
+	public void collisionMask(){
+		Physics.IgnoreLayerCollision(8, 10, r < threshold);	
+		Physics.IgnoreLayerCollision(8, 11, g < threshold);	
+		Physics.IgnoreLayerCollision(8, 12, b < threshold);
+		Physics.IgnoreLayerCollision(8, 13, g < threshold || b < threshold);	
+		Physics.IgnoreLayerCollision(8, 14, r < threshold || b < threshold);	
+		Physics.IgnoreLayerCollision(8, 15, r < threshold || g < threshold);
 		
 	}
 	
@@ -101,17 +112,9 @@ public class Player : MonoBehaviour {
 		c.b = c.b > 0 ? 1 : 0;
 		return c;
 	}
+
 	
-/**	
-	void clampForce(Vector3 force){
-		if (Mathf.Abs(force.x) > maxForce.x)
-			force.x *= maxForce.x / Mathf.Abs(force.x);
-		if (Mathf.Abs(force.y) > maxForce.y)
-			force.y *= maxForce.y / Mathf.Abs(force.y);
-		if (Mathf.Abs(force.z) > maxForce.z)
-			force.z *= maxForce.z / Mathf.Abs(force.z);
-	}
-**/
+	
 	void OnCollisionEnter(Collision c){
 		foreach(ContactPoint x in c.contacts)
 			if (x.normal.y > Mathf.Abs(x.normal.x))
