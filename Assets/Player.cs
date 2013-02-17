@@ -3,9 +3,7 @@ using System.Collections;
 
 public class Player : MonoBehaviour {
 	
-	float r = 1;
-	float g = 1;
-	float b = 1;
+	Color c = Color.white;
 	// Use this for initialization
 	
 	public float accelerationFactor;
@@ -36,15 +34,15 @@ public class Player : MonoBehaviour {
 		
 		if (frames == 0){
 			if (Input.GetKey(KeyCode.Z)){
-				r = r < threshold ? 1 : minColor;
+				c.r = c.r < threshold ? 1 : minColor;
 				frames = swapDelay;
 			}
 			if (Input.GetKey(KeyCode.X)){
-				g = g < threshold ? 1 : minColor;
+				c.g = c.g < threshold ? 1 : minColor;
 				frames = swapDelay;
 			}
 			if (Input.GetKey(KeyCode.C)){
-				b = b < threshold ? 1 : minColor;
+				c.b = c.b < threshold ? 1 : minColor;
 				frames = swapDelay;
 			}
 			if (Input.GetKey(KeyCode.A)){
@@ -64,10 +62,9 @@ public class Player : MonoBehaviour {
 		
 		core.transform.localScale = new Vector3(0.7f * health, 1.0f, 0.7f * health);
 		
-		Color color = new Color(r, g, b, 1.0f);
 		foreach (Transform child in transform){
 			foreach (Transform child2 in child.transform){
-				child2.renderer.material.color = mask(child2.renderer.material.color) * color;
+				child2.renderer.material.color = mask(child2.renderer.material.color) * c;
 			}
 		}
 		
@@ -87,6 +84,7 @@ public class Player : MonoBehaviour {
 		force *= Time.fixedDeltaTime;
 		rigidbody.AddForce(force);
 		
+		Debug.Log(c);
 		
 	}
 	
@@ -97,12 +95,12 @@ public class Player : MonoBehaviour {
 	}
 	
 	public void collisionMask(){
-		Physics.IgnoreLayerCollision(8, 10, r < threshold);	
-		Physics.IgnoreLayerCollision(8, 11, g < threshold);	
-		Physics.IgnoreLayerCollision(8, 12, b < threshold);
-		Physics.IgnoreLayerCollision(8, 13, g < threshold || b < threshold);	
-		Physics.IgnoreLayerCollision(8, 14, r < threshold || b < threshold);	
-		Physics.IgnoreLayerCollision(8, 15, r < threshold || g < threshold);
+		Physics.IgnoreLayerCollision(8, 10, c.r <= threshold);	
+		Physics.IgnoreLayerCollision(8, 11, c.g <= threshold);	
+		Physics.IgnoreLayerCollision(8, 12, c.b <= threshold);
+		Physics.IgnoreLayerCollision(8, 13, c.g <= threshold || c.b <= threshold);	
+		Physics.IgnoreLayerCollision(8, 14, c.r <= threshold || c.b <= threshold);	
+		Physics.IgnoreLayerCollision(8, 15, c.r <= threshold || c.g <= threshold);
 		
 	}
 	
@@ -115,10 +113,36 @@ public class Player : MonoBehaviour {
 
 	
 	
-	void OnCollisionEnter(Collision c){
-		foreach(ContactPoint x in c.contacts)
+	void OnCollisionEnter(Collision cx){
+		foreach(ContactPoint x in cx.contacts){
 			if (x.normal.y > Mathf.Abs(x.normal.x))
 				onGround = true;
+			drain(x.otherCollider);
+		}
 	}
 	
+	void OnCollisionStay(Collision cx){
+		foreach(ContactPoint x in cx.contacts)
+			drain(x.otherCollider);
+	}
+	
+	void drain(Collider cx){
+		Block b = (Block) cx.GetComponent(typeof(Block));
+		if (b != null)
+			decrementColor(b.drainRate * b.getColor());
+	}
+	
+	void decrementColor (Color dec){
+		dec *= 0.01f;
+		dec.a = 0;		
+
+		Color x = c - dec;
+		if (x.r < minColor)
+			dec.r = c.r - minColor;
+		if (x.g < minColor)
+			dec.g = c.g - minColor;
+		if (x.b < minColor)
+			dec.b = c.b - minColor;
+		c -= dec;
+	}
 }
