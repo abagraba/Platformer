@@ -127,16 +127,17 @@ public class Player : MonoBehaviour {
 	
 	
 	void OnCollisionEnter(Collision cx){
-		maxVerticalVelocity = normalJumpHeight;
 		foreach(ContactPoint x in cx.contacts){
-			if (x.normal.y > Mathf.Abs(x.normal.x))
+		Block b = getBlock(x.otherCollider);
+			if (x.normal.y > Mathf.Abs(x.normal.x)){
 				onGround = true;
-			Block b = getBlock(x.otherCollider);
-			drain(b);
+				maxVerticalVelocity = normalJumpHeight;
+			}
 			if (b.action == 1){
 				maxVerticalVelocity = b.parameters[0];
 				rigidbody.velocity = new Vector3(rigidbody.velocity.x, maxVerticalVelocity, rigidbody.velocity.z);
 			}
+			drain(b);	
 		}
 	}
 	
