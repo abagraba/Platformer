@@ -9,11 +9,14 @@ public class Player : MonoBehaviour {
 	public float accelerationFactor;
 	
 	public float horizontalAcceleration;		
-	public float jumpAccel;
 	public float gravAccel;
+	
+	private float maxVerticalVelocity;
+	public float normalJumpHeight;
 	
 	public float minColor;
 	public float threshold;
+	public float max;
 	public int swapDelay;
 	
 	public GameObject core;
@@ -34,15 +37,15 @@ public class Player : MonoBehaviour {
 		
 		if (frames == 0){
 			if (Input.GetKey(KeyCode.Z)){
-				c.r = c.r < threshold ? 1 : minColor;
+				c.r = c.r <= threshold ? 1 : minColor;
 				frames = swapDelay;
 			}
 			if (Input.GetKey(KeyCode.X)){
-				c.g = c.g < threshold ? 1 : minColor;
+				c.g = c.g <= threshold ? 1 : minColor;
 				frames = swapDelay;
 			}
 			if (Input.GetKey(KeyCode.C)){
-				c.b = c.b < threshold ? 1 : minColor;
+				c.b = c.b <= threshold ? 1 : minColor;
 				frames = swapDelay;
 			}
 			if (Input.GetKey(KeyCode.A)){
@@ -62,14 +65,16 @@ public class Player : MonoBehaviour {
 		
 		core.transform.localScale = new Vector3(0.7f * health, 1.0f, 0.7f * health);
 		
-		foreach (Transform child in transform){
-			foreach (Transform child2 in child.transform){
+		
+		// Set Colors of Components
+		// Uses the existing color to mask the color to the right components.
+		foreach (Transform child in transform)
+			foreach (Transform child2 in child.transform)
 				child2.renderer.material.color = mask(child2.renderer.material.color) * c;
-			}
-		}
+			
 		
 		Vector3 force = new Vector3(0, 0, 0);
-	
+		bool jump = false;
 		if (Input.GetKey(KeyCode.LeftArrow))
 			force.x -= rigidbody.mass*horizontalAcceleration*accelerationFactor;
 		if (Input.GetKey(KeyCode.RightArrow))
@@ -77,15 +82,16 @@ public class Player : MonoBehaviour {
 		
 		if (onGround && Input.GetKey(KeyCode.UpArrow)){
 			onGround = false;
-			force.y = rigidbody.mass*jumpAccel*accelerationFactor;
+			jump = true;
 		}
 		force.y -= rigidbody.mass*gravAccel*accelerationFactor;
 		
 		force *= Time.fixedDeltaTime;
 		rigidbody.AddForce(force);
-		
-		Debug.Log(c);
-		
+		if (jump){
+			rigidbody.velocity = new Vector3(rigidbody.velocity.x, maxVerticalVelocity, rigidbody.velocity.z);
+			jump = !jump;
+		}
 	}
 	
 	private Color[] colors = new Color[]{Color.red, Color.green, Color.blue, Color.cyan, Color.magenta, Color.yellow, Color.white, Color.black};
@@ -95,12 +101,19 @@ public class Player : MonoBehaviour {
 	}
 	
 	public void collisionMask(){
-		Physics.IgnoreLayerCollision(8, 10, c.r <= threshold);	
-		Physics.IgnoreLayerCollision(8, 11, c.g <= threshold);	
-		Physics.IgnoreLayerCollision(8, 12, c.b <= threshold);
-		Physics.IgnoreLayerCollision(8, 13, c.g <= threshold || c.b <= threshold);	
-		Physics.IgnoreLayerCollision(8, 14, c.r <= threshold || c.b <= threshold);	
-		Physics.IgnoreLayerCollision(8, 15, c.r <= threshold || c.g <= threshold);
+		bool rThresh = c.r <= threshold;
+		bool gThresh = c.g <= threshold;
+		bool bThresh = c.b <= threshold;
+		bool rMax = c.r >= max;
+		bool gMax = c.g >= max;
+		bool bMax = c.b >= max;
+		Physics.IgnoreLayerCollision(8, 10, rThresh);	
+		Physics.IgnoreLayerCollision(8, 11, gThresh);	
+		Physics.IgnoreLayerCollision(8, 12, bThresh);
+		Physics.IgnoreLayerCollision(8, 13, gThresh || bThresh);	
+		Physics.IgnoreLayerCollision(8, 14, rThresh || bThresh);	
+		Physics.IgnoreLayerCollision(8, 15, rThresh || gThresh);
+		Physics.IgnoreLayerCollision(8, 17, !(rThresh || gThresh || bThresh));
 		
 	}
 	
@@ -114,20 +127,41 @@ public class Player : MonoBehaviour {
 	
 	
 	void OnCollisionEnter(Collision cx){
+		maxVerticalVelocity = normalJumpHeight;
 		foreach(ContactPoint x in cx.contacts){
 			if (x.normal.y > Mathf.Abs(x.normal.x))
 				onGround = true;
-			drain(x.otherCollider);
+			Block b = getBlock(x.otherCollider);
+			drain(b);
+			if (b.action == 1){
+				maxVerticalVelocity = b.parameters[0];
+				rigidbody.velocity = new Vector3(rigidbody.velocity.x, maxVerticalVelocity, rigidbody.velocity.z);
+			}
 		}
 	}
 	
 	void OnCollisionStay(Collision cx){
-		foreach(ContactPoint x in cx.contacts)
-			drain(x.otherCollider);
+		foreach(ContactPoint x in cx.contacts){
+			if (x.normal.y > Mathf.Abs(x.normal.x))
+				onGround = true;
+			Block b = getBlock(x.otherCollider);
+			drain(b);
+		}
 	}
 	
-	void drain(Collider cx){
-		Block b = (Block) cx.GetComponent(typeof(Block));
+	void OnTriggerEnter(Collider cx){
+		drain(getBlock(cx));
+	}
+	
+	void OnTriggerStay(Collider cx){
+		drain(getBlock(cx));
+	}
+
+	private Block getBlock(Collider x){
+		return (Block) x.GetComponent(typeof(Block));
+	}
+	
+	void drain(Block b){
 		if (b != null)
 			decrementColor(b.drainRate * b.getColor());
 	}
