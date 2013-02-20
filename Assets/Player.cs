@@ -133,6 +133,8 @@ public class Player : MonoBehaviour {
 				onGround = true;
 				maxVerticalVelocity = normalJumpHeight;
 			}
+			if (b.gameObject.layer == 19)
+				maxVerticalVelocity = 0;
 			if (b.action == 1){
 				maxVerticalVelocity = b.parameters[0];
 				rigidbody.velocity = new Vector3(rigidbody.velocity.x, maxVerticalVelocity, rigidbody.velocity.z);
