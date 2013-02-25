@@ -11,12 +11,13 @@ public class platformScript : MonoBehaviour {
 	public bool B = false;
 	
 	GameObject PC;
+
 	
 	// Use this for initialization
 	void Start () {
 		
 		if (!PC){
-			PC = GameObject.FindGameObjectWithTag("player");
+			PC = GameObject.FindGameObjectWithTag("Player");
 		} else {
 			Debug.LogError("Player not found");
 		}
@@ -25,25 +26,27 @@ public class platformScript : MonoBehaviour {
 			if (R){
 				if(B) {				
 					this.renderer.material.color = Color.magenta;
-					
+					this.gameObject.layer = 14;
 				} else if (G){
 					this.renderer.material.color = Color.yellow;
-					
+					this.gameObject.layer = 15;
 				} else {
 					this.renderer.material.color = Color.red;
+					this.gameObject.layer = 10;
 				}
 			
 			} else if (G){
 				if (B){
 					this.renderer.material.color = Color.cyan;
+					this.gameObject.layer = 13;
 				
 				} else {
 					this.renderer.material.color = Color.green;
-					
+					this.gameObject.layer = 11;
 				}	
 			} else {
 				this.renderer.material.color = Color.blue;
-			
+				this.gameObject.layer = 12;
 			}
 						
 		} else {
@@ -57,20 +60,33 @@ public class platformScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if(!platform){
+		
+		Player player = PC.GetComponent<Player>();
+		
+		Color c = player.c;
+		
+		float red = c.r;
+		float green = c.g;
+		float blue = c.b;
+		
+		Color transparency = this.renderer.material.color;
+		
+		if (!platform){
 			if (R && G){
-				this.renderer.material.color.a = Mathf.Min(PC.renderer.material.color.r,PC.renderer.material.color.g);
+				transparency.a = Mathf.Min(red, green);
 			} else if (R && B){
-				this.renderer.material.color.a = Mathf.Min(PC.renderer.material.color.r,PC.renderer.material.color.b);
+				transparency.a = Mathf.Min(red, blue);
 			}else if (G && B){
-				this.renderer.material.color.a = Mathf.Min(PC.renderer.material.color.g,PC.renderer.material.color.b);
+				transparency.a = Mathf.Min(green, blue);
 			} else if(R){
-				this.renderer.material.color.a = PC.renderer.material.color.r;
+				transparency.a = red;
 			} else if(G){
-				this.renderer.material.color.a = PC.renderer.material.color.g;	
+				transparency.a = green;	
 			} else if(B){
-				this.renderer.material.color.a = PC.renderer.material.color.b;
+				transparency.a = blue;
 			}
 		}
+		
+		this.renderer.material.color = transparency;
 	}
 }

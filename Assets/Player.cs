@@ -3,7 +3,7 @@ using System.Collections;
 
 public class Player : MonoBehaviour {
 	
-	Color c = Color.white;
+	public Color c = Color.white;
 	// Use this for initialization
 	
 	public float accelerationFactor;
@@ -181,5 +181,9 @@ public class Player : MonoBehaviour {
 		if (x.b < minColor)
 			dec.b = c.b - minColor;
 		c -= dec;
+	}
+	
+	Color getColorValues(){
+	return c;	
 	}
 }
