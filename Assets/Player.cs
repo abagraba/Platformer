@@ -78,7 +78,11 @@ public class Player : MonoBehaviour {
 			
 		float dAngle = finalAngleDown - angleDown;
 		dAngle %= 2*Mathf.PI;
-		float rotate = rotateSpeed * (dAngle>0?1:-1) * (Mathf.Abs(dAngle)>Mathf.PI?-1:1);
+		if (dAngle < -Mathf.PI)
+			dAngle += 2*Mathf.PI;
+		if (dAngle > Mathf.PI)
+			dAngle -= 2*Mathf.PI;
+		float rotate = rotateSpeed * (dAngle>0?1:-1);
 		angleDown += center(rotate, dAngle);
 		
 		Vector3 force = new Vector3(0, 0, 0);
