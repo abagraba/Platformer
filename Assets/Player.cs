@@ -135,6 +135,14 @@ public class Player : MonoBehaviour {
 		Physics.IgnoreLayerCollision(8, 14, rThresh || bThresh);	
 		Physics.IgnoreLayerCollision(8, 15, rThresh || gThresh);
 		Physics.IgnoreLayerCollision(8, 17, !(rThresh || gThresh || bThresh));
+		Physics.IgnoreLayerCollision(8, 18, rMax);	
+		Physics.IgnoreLayerCollision(8, 19, gMax);	
+		Physics.IgnoreLayerCollision(8, 20, bMax);
+		Physics.IgnoreLayerCollision(8, 21, gMax && bMax);	
+		Physics.IgnoreLayerCollision(8, 22, rMax && bMax);	
+		Physics.IgnoreLayerCollision(8, 23, rMax && gMax);
+		Physics.IgnoreLayerCollision(8, 24, rMax && gMax && bMax);
+		Physics.IgnoreLayerCollision(8, 25, rThresh && gThresh && bThresh);
 	}
 	
 	Color mask(Color c){
@@ -151,7 +159,7 @@ public class Player : MonoBehaviour {
 		Block b = getBlock(x.otherCollider);
 			float dtheta = Vector3.Dot(x.normal, up());
 			dtheta /= x.normal.magnitude;
-			if (Mathf.Abs(dtheta) >= Mathf.Cos(Mathf.PI/4.0f))
+			if (dtheta >= Mathf.Cos(Mathf.PI/4.0f))
 				onGround = true;			
 			if (b.gameObject.layer == 19)
 				jumpVelocity = 0;
@@ -168,7 +176,7 @@ public class Player : MonoBehaviour {
 		foreach(ContactPoint x in cx.contacts){
 			float dtheta = Vector3.Dot(x.normal, up());
 			dtheta /= x.normal.magnitude;
-			if (Mathf.Abs(dtheta) >= Mathf.Cos(Mathf.PI/4.0f))
+			if (dtheta >= Mathf.Cos(Mathf.PI/4.0f))
 				onGround = true;			
 			Block b = getBlock(x.otherCollider);
 			drain(b);
