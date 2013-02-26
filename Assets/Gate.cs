@@ -18,13 +18,13 @@ public class Gate : MonoBehaviour {
 		Color c = colors[gameObject.layer - 10];			
 		if (gameObject.layer == 16)
 			return c;
-		float a = 0.0f;
+		float a = 1.0f;
 		if(c.r > 0)
-			a = Mathf.Max(a, 1-PC.c.r);
+			a = Mathf.Min(a, 1-PC.c.r);
 		if(c.g > 0)
-			a = Mathf.Max(a, 1-PC.c.g);
+			a = Mathf.Min(a, 1-PC.c.g);
 		if(c.b > 0)
-			a = Mathf.Max(a, 1-PC.c.b);
+			a = Mathf.Min(a, 1-PC.c.b);
 		c.a = a;
 		return c;	
 	}

@@ -27,10 +27,10 @@ public class Player : MonoBehaviour {
 	private float health = 1.0f;
 	private int frames;
 	private bool onGround = false;
-	private GravWell spawn;
+	public GravWell spawn;
 	
 	void Start () {
-		
+		respawn();
 	}
 	
 	private void testing(){
@@ -100,7 +100,7 @@ public class Player : MonoBehaviour {
 			float horizontal = Vector3.Dot(rigidbody.velocity, right());
 			rigidbody.velocity =  horizontal * right() + jumpVelocity * up();
 		}
-		
+		Debug.Log(c);	
 		jumpVelocity = normalJumpHeight;
 		onGround = false;
 	}
@@ -238,7 +238,14 @@ public class Player : MonoBehaviour {
 	
 	public void respawn(){
 		c = spawn.c;
+		transform.rotation = spawn.transform.rotation;
 		transform.position = spawn.transform.position;
 	}
 	
 }
+
+
+// -- Set main spawn point
+//Time based forced respawn?
+//black gates
+//objects
