@@ -10,8 +10,11 @@ public class Player : MonoBehaviour {
 	
 	public float horizontalAcceleration;		
 	public float gravAccel;
-	
-	private float maxVerticalVelocity;
+
+	public float angleDown = 0.0f;
+	private float finalAngleDown = 0.0f;
+	private float rotateSpeed = Mathf.PI/180.0f;
+	private float jumpVelocity;
 	public float normalJumpHeight;
 	
 	public float minColor;
@@ -24,18 +27,16 @@ public class Player : MonoBehaviour {
 	private float health = 1.0f;
 	private int frames;
 	private bool onGround = false;
+	private GravWell spawn;
 	
 	void Start () {
 		
 	}
 	
-	// Update is called once per frame
-	void FixedUpdate () {
-		
+	private void testing(){
 		if (frames > 0)
 			frames--;
-		
-		if (frames == 0){
+		else{
 			if (Input.GetKey(KeyCode.Z)){
 				c.r = c.r <= threshold ? 1 : minColor;
 				frames = swapDelay;
@@ -56,11 +57,14 @@ public class Player : MonoBehaviour {
 				health = 0.3f;
 				frames = swapDelay;
 			}
-
-		
 		}
-
+	}
+	
+	// Update is called once per frame
+	void FixedUpdate () {
 		
+		testing();
+	
 		collisionMask();
 		
 		core.transform.localScale = new Vector3(0.7f * health, 1.0f, 0.7f * health);
@@ -72,26 +76,43 @@ public class Player : MonoBehaviour {
 			foreach (Transform child2 in child.transform)
 				child2.renderer.material.color = mask(child2.renderer.material.color) * c;
 			
+		float dAngle = finalAngleDown - angleDown;
+		dAngle %= 2*Mathf.PI;
+		float rotate = rotateSpeed * (dAngle>0?1:-1) * (Mathf.Abs(dAngle)>Mathf.PI?-1:1);
+		angleDown += center(rotate, dAngle);
 		
 		Vector3 force = new Vector3(0, 0, 0);
-		bool jump = false;
 		if (Input.GetKey(KeyCode.LeftArrow))
-			force.x -= rigidbody.mass*horizontalAcceleration*accelerationFactor;
+			force -= rigidbody.mass*horizontalAcceleration*accelerationFactor * right();
 		if (Input.GetKey(KeyCode.RightArrow))
-			force.x += rigidbody.mass*horizontalAcceleration*accelerationFactor;
+			force += rigidbody.mass*horizontalAcceleration*accelerationFactor * right();
 		
-		if (onGround && Input.GetKey(KeyCode.UpArrow)){
-			onGround = false;
-			jump = true;
-		}
-		force.y -= rigidbody.mass*gravAccel*accelerationFactor;
+		float fGrav = rigidbody.mass*gravAccel*accelerationFactor;
+		force += up()*fGrav;
 		
 		force *= Time.fixedDeltaTime;
 		rigidbody.AddForce(force);
-		if (jump){
-			rigidbody.velocity = new Vector3(rigidbody.velocity.x, maxVerticalVelocity, rigidbody.velocity.z);
-			jump = !jump;
+		if (onGround && Input.GetKey(KeyCode.UpArrow)){
+			float horizontal = Vector3.Dot(rigidbody.velocity, right());
+			rigidbody.velocity =  horizontal * right() + jumpVelocity * up();
 		}
+		
+		jumpVelocity = normalJumpHeight;
+		onGround = false;
+	}
+	
+	private Vector3 up(){
+		return new Vector3(-Mathf.Sin(angleDown), Mathf.Cos(angleDown));	
+	}
+	
+	private Vector3 right(){
+		return new Vector3(Mathf.Cos(angleDown), Mathf.Sin(angleDown));	
+	}
+	
+	private float center(float a, float b){
+		if (Mathf.Abs(a)>Mathf.Abs(b))
+			return b;
+		return a;
 	}
 	
 	private Color[] colors = new Color[]{Color.red, Color.green, Color.blue, Color.cyan, Color.magenta, Color.yellow, Color.white, Color.black};
@@ -114,7 +135,6 @@ public class Player : MonoBehaviour {
 		Physics.IgnoreLayerCollision(8, 14, rThresh || bThresh);	
 		Physics.IgnoreLayerCollision(8, 15, rThresh || gThresh);
 		Physics.IgnoreLayerCollision(8, 17, !(rThresh || gThresh || bThresh));
-		
 	}
 	
 	Color mask(Color c){
@@ -129,15 +149,16 @@ public class Player : MonoBehaviour {
 	void OnCollisionEnter(Collision cx){
 		foreach(ContactPoint x in cx.contacts){
 		Block b = getBlock(x.otherCollider);
-			if (x.normal.y > Mathf.Abs(x.normal.x)){
-				onGround = true;
-				maxVerticalVelocity = normalJumpHeight;
-			}
+			float dtheta = Vector3.Dot(x.normal, up());
+			dtheta /= x.normal.magnitude;
+			if (Mathf.Abs(dtheta) >= Mathf.Cos(Mathf.PI/4.0f))
+				onGround = true;			
 			if (b.gameObject.layer == 19)
-				maxVerticalVelocity = 0;
+				jumpVelocity = 0;
 			if (b.action == 1){
-				maxVerticalVelocity = b.parameters[0];
-				rigidbody.velocity = new Vector3(rigidbody.velocity.x, maxVerticalVelocity, rigidbody.velocity.z);
+				jumpVelocity = b.parameters[0];
+				float horizontal = Vector3.Dot(rigidbody.velocity, right());
+				rigidbody.velocity = horizontal * right() + jumpVelocity * up();
 			}
 			drain(b);	
 		}
@@ -145,28 +166,44 @@ public class Player : MonoBehaviour {
 	
 	void OnCollisionStay(Collision cx){
 		foreach(ContactPoint x in cx.contacts){
-			if (x.normal.y > Mathf.Abs(x.normal.x))
-				onGround = true;
+			float dtheta = Vector3.Dot(x.normal, up());
+			dtheta /= x.normal.magnitude;
+			if (Mathf.Abs(dtheta) >= Mathf.Cos(Mathf.PI/4.0f))
+				onGround = true;			
 			Block b = getBlock(x.otherCollider);
 			drain(b);
 		}
 	}
 	
 	void OnTriggerEnter(Collider cx){
-		drain(getBlock(cx));
+		if (!drain(getBlock(cx))){
+			if (cx.tag.Equals("Death"))
+				respawn();
+			if (cx.tag.Equals("Respawn")){
+				GravWell gravWell = (GravWell)cx.GetComponent(typeof(GravWell));
+				spawn = gravWell;
+				rotateSpeed = gravWell.rotateSpeed;
+				finalAngleDown = cx.transform.eulerAngles.z*Mathf.PI/180.0f;
+			}
+		}
 	}
 	
 	void OnTriggerStay(Collider cx){
-		drain(getBlock(cx));
+		if (!drain(getBlock(cx))){
+			GameObject gravWell = cx.gameObject;
+		}
 	}
 
 	private Block getBlock(Collider x){
 		return (Block) x.GetComponent(typeof(Block));
 	}
 	
-	void drain(Block b){
-		if (b != null)
+	bool drain(Block b){
+		if (b != null){
 			decrementColor(b.drainRate * b.getColor());
+			return true;
+		}
+		return false;
 	}
 	
 	void decrementColor (Color dec){
@@ -186,4 +223,10 @@ public class Player : MonoBehaviour {
 	Color getColorValues(){
 	return c;	
 	}
+	
+	public void respawn(){
+		c = spawn.c;
+		transform.position = spawn.transform.position;
+	}
+	
 }
