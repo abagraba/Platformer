@@ -195,6 +195,10 @@ public class Player : MonoBehaviour {
 				rotateSpeed = gravWell.rotateSpeed;
 				finalAngleDown = cx.transform.eulerAngles.z*Mathf.PI/180.0f;
 			}
+			if(cx.tag.Equals("Coin")){
+				Coin tempCoin = (Coin) cx.GetComponent(typeof(Coin));
+				giveColor(tempCoin.x);
+			}
 		}
 	}
 	
@@ -228,6 +232,30 @@ public class Player : MonoBehaviour {
 		if (x.b < minColor)
 			dec.b = c.b - minColor;
 		c -= dec;
+	}
+	
+	void giveColor(float[] x){
+		
+		if(x[0] == 1f){//red
+			if(x[1] == 1f){//small
+			
+			}
+			else if(x[2] == 2f){//med
+			
+			}
+			else if(x[3] == 3f){//large
+				c.r = 1;
+				getColor();
+				//renderer.material.color = Color.red;
+			}
+		
+		}
+		else if(x[0] == 2f){//green
+		
+		}
+		else if(x[0] == 3f){// blue
+		}
+		
 	}
 	
 	Color getColorValues(){
