@@ -220,6 +220,7 @@ public class Player : MonoBehaviour {
 			Block b = getBlock(x.otherCollider);
 			if (b!= null && b.action == 1){
 				jumpVelocity = b.parameters[0];
+				onGround = true;
 				jump();
 			}
 		}
