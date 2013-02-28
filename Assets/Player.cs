@@ -18,8 +18,9 @@ public class Player : MonoBehaviour {
 	public float normalJumpHeight;
 	
 	public float minColor;
-	public float threshold;
-	public float max;
+	public float maxColor;
+	public float minThresh;
+	public float maxThresh;
 	public int swapDelay;
 	
 	public GameObject core;
@@ -38,15 +39,15 @@ public class Player : MonoBehaviour {
 			frames--;
 		else{
 			if (Input.GetKey(KeyCode.Z)){
-				c.r = c.r <= threshold ? 1 : minColor;
+				c.r = c.r <= minThresh ? maxColor : minColor;
 				frames = swapDelay;
 			}
 			if (Input.GetKey(KeyCode.X)){
-				c.g = c.g <= threshold ? 1 : minColor;
+				c.g = c.g <= minThresh ? maxColor : minColor;
 				frames = swapDelay;
 			}
 			if (Input.GetKey(KeyCode.C)){
-				c.b = c.b <= threshold ? 1 : minColor;
+				c.b = c.b <= minThresh ? maxColor : minColor;
 				frames = swapDelay;
 			}
 			if (Input.GetKey(KeyCode.A)){
@@ -126,19 +127,18 @@ public class Player : MonoBehaviour {
 	}
 	
 	public void collisionMask(){
-		bool rThresh = c.r <= threshold;
-		bool gThresh = c.g <= threshold;
-		bool bThresh = c.b <= threshold;
-		bool rMax = c.r >= max;
-		bool gMax = c.g >= max;
-		bool bMax = c.b >= max;
+		bool rThresh = c.r <= minThresh;
+		bool gThresh = c.g <= minThresh;
+		bool bThresh = c.b <= minThresh;
+		bool rMax = c.r >= maxThresh;
+		bool gMax = c.g >= maxThresh;
+		bool bMax = c.b >= maxThresh;
 		Physics.IgnoreLayerCollision(8, 10, rThresh);	
 		Physics.IgnoreLayerCollision(8, 11, gThresh);	
 		Physics.IgnoreLayerCollision(8, 12, bThresh);
 		Physics.IgnoreLayerCollision(8, 13, gThresh || bThresh);	
 		Physics.IgnoreLayerCollision(8, 14, rThresh || bThresh);	
 		Physics.IgnoreLayerCollision(8, 15, rThresh || gThresh);
-		Physics.IgnoreLayerCollision(8, 17, !(rThresh || gThresh || bThresh));
 		Physics.IgnoreLayerCollision(8, 18, rMax);	
 		Physics.IgnoreLayerCollision(8, 19, gMax);	
 		Physics.IgnoreLayerCollision(8, 20, bMax);
@@ -233,6 +233,7 @@ public class Player : MonoBehaviour {
 			dec.b = c.b - minColor;
 		c -= dec;
 	}
+<<<<<<< HEAD
 	
 	void giveColor(float[] x){
 		
@@ -262,14 +263,15 @@ public class Player : MonoBehaviour {
 	return c;	
 	}
 	
+
+	
 	public void respawn(){
 		c = spawn.c;
-		transform.rotation = spawn.transform.rotation;
+	 	transform.rotation = spawn.transform.rotation;
 		transform.position = spawn.transform.position;
 	}
-	
-}
 
+}
 
 // -- Set main spawn point
 //Time based forced respawn?

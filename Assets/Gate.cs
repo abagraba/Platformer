@@ -15,18 +15,28 @@ public class Gate : MonoBehaviour {
 	}
 
 	public virtual Color getColor(){
-		Color c = colors[gameObject.layer - 10];			
-		if (gameObject.layer == 16)
-			return c;
-		float a = 1.0f;
-		if(c.r > 0)
-			a = Mathf.Min(a, 1-PC.c.r);
-		if(c.g > 0)
-			a = Mathf.Min(a, 1-PC.c.g);
-		if(c.b > 0)
-			a = Mathf.Min(a, 1-PC.c.b);
-		c.a = a;
-		return c;	
+		Color c = colors[gameObject.layer - 18];			
+		if (gameObject.layer == 25){
+			float ax = 0.0f;
+			if(c.r > 0)
+				ax = Mathf.Max(ax, PC.c.r);
+			if(c.g > 0)
+				ax = Mathf.Max(ax, PC.c.g);
+			if(c.b > 0)
+				ax = Mathf.Max(ax, PC.c.b);
+			c.a = ax;
+		}
+		else{
+			float ax = 1.0f;
+			if(c.r > 0)
+				ax = Mathf.Min(ax, PC.c.r);
+			if(c.g > 0)
+				ax = Mathf.Min(ax, PC.c.g);
+			if(c.b > 0)
+				ax = Mathf.Min(ax, PC.c.b);
+			c.a = 1.2f - ax;
+		}
+		return c;
 	}
 	
 	void Update () {

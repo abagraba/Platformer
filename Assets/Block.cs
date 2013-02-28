@@ -8,7 +8,7 @@ public class Block : MonoBehaviour {
 	public int[] parameters;
 	public int action = 0;
 	public float drainRate = 0.0f;
-	protected Color[] colors = new Color[]{Color.red, Color.green, Color.blue, Color.cyan, Color.magenta, Color.yellow, Color.white, Color.gray, Color.black, new Color(0.43f, 0.27f, 0)};
+	protected Color[] colors = new Color[]{Color.red, Color.green, Color.blue, Color.cyan, Color.magenta, Color.yellow, Color.white, Color.white * 0.2f};
 	
 	void Start () {
 		
