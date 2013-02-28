@@ -3,16 +3,13 @@ using System.Collections;
 
 public class Camera : MonoBehaviour {
 	
-	public GameObject target;
-	// Use this for initialization
-	void Start () {
+	public Player PC;
 	
-	}
-	
-	// Update is called once per frame
+	/*
+	 * Camera locks on to the Player's position and rotates such that gravity points down.
+	 */
 	void Update () {
-		Player PC = (Player)target.GetComponent(typeof(Player));
-		transform.rotation = Quaternion.Euler(new Vector3(0, 0, PC.angleDown * 180.0f / Mathf.PI));
-		transform.position = new Vector3(target.transform.position.x, target.transform.position.y, -50);
+		transform.rotation = Quaternion.Euler(new Vector3(0, 0, PC.gravityAngle * 180.0f / Mathf.PI));
+		transform.position = new Vector3(PC.transform.position.x, PC.transform.position.y, -50);
 	}
 }

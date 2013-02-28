@@ -3,33 +3,29 @@
 using UnityEngine;
 using System.Collections;
 
-public class Coin : Block {
+public class Coin : Environment {
 	
 	public float[] x =new float[2]; //First place denotes coin color, second denotes coin size
-	public Color color;
 	// Use this for initialization
 	void Start () {
+		minIntensity = 0.7f;
+		maxIntensity = 0.9f;
+		drainRate *= -50; // The Coin gives between 0.0 to 1.0 of a color to the Player.
+	}
 		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
-	
 	void OnTriggerEnter(Collider other) //Activated when trigger zone is entered
 	{
 		//if(other.tag==Player) //Makes sure collision object is the Player
 		{
-			if(gameObject.renderer.material.GetColor("_Color") == Color.red) //Checks if Red
+			if(color == Color.red) //Checks if Red
 			{
 				x[0] = 1f; //Red is 1
 			}
-			if(gameObject.renderer.material.GetColor("_Color") == Color.green) //Checks if Green
+			if(color == Color.green) //Checks if Green
 			{
 				x[0] = 2f; //Green is 2
 			}
-			if(gameObject.renderer.material.GetColor("_Color") == Color.blue) //Checks if Blue
+			if(color == Color.blue) //Checks if Blue
 			{
 				x[0] = 3f; //Blue is 3
 			}
@@ -41,8 +37,5 @@ public class Coin : Block {
 			audiosource.Play(); //Turns On audio system
 			Destroy(gameObject); //Destroys the coin
 		}
-	}
-	public override Color getColor(){
-		return color * 1f;	
 	}
 }
