@@ -22,7 +22,8 @@ public class Player : MonoBehaviour {
 	public float minThresh;
 	public float maxThresh;
 	public int swapDelay;
-	
+    public GameObject[] phys;
+
 	public GameObject core;
 	
 	private float health = 1.0f;
@@ -63,7 +64,7 @@ public class Player : MonoBehaviour {
 	
 	// Update is called once per frame
 	void FixedUpdate () {
-		
+        wake();
 		testing();
 	
 		collisionMask();
@@ -163,13 +164,13 @@ public class Player : MonoBehaviour {
 			dtheta /= x.normal.magnitude;
 			if (dtheta >= Mathf.Cos(Mathf.PI/4.0f))
 				onGround = true;			
-			if (b.gameObject.layer == 19)
-				jumpVelocity = 0;
 			if (b.action == 1){
-				jumpVelocity = b.parameters[0];
+				jumpVelocity = Mathf.Min(b.parameters[0], jumpVelocity);
 				float horizontal = Vector3.Dot(rigidbody.velocity, right());
 				rigidbody.velocity = horizontal * right() + jumpVelocity * up();
 			}
+            if (b.action == 2)
+                jumpVelocity = 0;
 			drain(b);	
 		}
 	}
@@ -191,6 +192,7 @@ public class Player : MonoBehaviour {
 				respawn();
 			if (cx.tag.Equals("Respawn")){
 				GravWell gravWell = (GravWell)cx.GetComponent(typeof(GravWell));
+                phys = gravWell.phys;
 				spawn = gravWell;
 				rotateSpeed = gravWell.rotateSpeed;
 				finalAngleDown = cx.transform.eulerAngles.z*Mathf.PI/180.0f;
@@ -207,6 +209,11 @@ public class Player : MonoBehaviour {
 			GameObject gravWell = cx.gameObject;
 		}
 	}
+
+    void wake(){
+        for (int i = 0; i < phys.Length; i++)
+            phys[i].rigidbody.WakeUp();
+    }
 
 	private Block getBlock(Collider x){
 		return (Block) x.GetComponent(typeof(Block));
@@ -233,29 +240,25 @@ public class Player : MonoBehaviour {
 			dec.b = c.b - minColor;
 		c -= dec;
 	}
-<<<<<<< HEAD
 	
 	void giveColor(float[] x){
 		
 		if(x[0] == 1f){//red
-			if(x[1] == 1f){//small
-			
-			}
-			else if(x[2] == 2f){//med
-			
-			}
-			else if(x[3] == 3f){//large
-				c.r = 1;
-				getColor();
-				//renderer.material.color = Color.red;
-			}
-		
+			c.r += x[1]/3.0f;
+			getColor();
+		    //renderer.material.color = Color.red;
 		}
-		else if(x[0] == 2f){//green
 		
+		else if(x[0] == 2f){//green
+            c.g += x[1] / 3.0f;
+            getColor();
+		    
 		}
 		else if(x[0] == 3f){// blue
-		}
+            c.b += x[1] / 3.0f;
+            getColor();
+		    
+        }
 		
 	}
 	
