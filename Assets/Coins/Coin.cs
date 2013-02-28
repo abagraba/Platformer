@@ -9,7 +9,7 @@ public class Coin : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		
+			
 	}
 	
 	// Update is called once per frame
@@ -31,10 +31,10 @@ public class Coin : MonoBehaviour {
 			}
 			if(gameObject.renderer.material.GetColor("_Color") == Color.blue) //Checks if Blue
 			{
-				x[0] = 3f; //Green is 3
+				x[0] = 3f; //Blue is 3
 			}
 			x[1] = gameObject.renderer.bounds.size.x; //Small=1, Medium=2, Large=3
-			other.SendMessage("GiveColor", x); //Tells Player what they ran into
+			other.SendMessage("giveColor", x); //Tells Player what they ran into
 			ParticleSystem particlesystem = (ParticleSystem)gameObject.GetComponent("ParticleSystem"); //Finds particle system for Coin
 			particlesystem.enableEmission = true; //Turns On particle system
 			AudioSource audiosource = (AudioSource)gameObject.GetComponent("AudioSource"); //Finds audio system for Coin

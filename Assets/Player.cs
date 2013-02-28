@@ -155,8 +155,6 @@ public class Player : MonoBehaviour {
 		c.b = c.b > 0 ? 1 : 0;
 		return c;
 	}
-
-	
 	
 	void OnCollisionEnter(Collision cx){
 		foreach(ContactPoint x in cx.contacts){
