@@ -165,7 +165,7 @@ public class Player : MonoBehaviour {
 			if (dtheta >= Mathf.Cos(Mathf.PI/4.0f))
 				onGround = true;			
 			if (b.action == 1){
-				jumpVelocity = Mathf.Min(b.parameters[0], jumpVelocity);
+				jumpVelocity = b.parameters[0];
 				float horizontal = Vector3.Dot(rigidbody.velocity, right());
 				rigidbody.velocity = horizontal * right() + jumpVelocity * up();
 			}
