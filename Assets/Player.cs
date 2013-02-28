@@ -107,11 +107,11 @@ public class Player : MonoBehaviour {
 		onGround = false;
 	}
 	
-	private Vector3 up(){
+	public Vector3 up(){
 		return new Vector3(-Mathf.Sin(angleDown), Mathf.Cos(angleDown));	
 	}
 	
-	private Vector3 right(){
+	public Vector3 right(){
 		return new Vector3(Mathf.Cos(angleDown), Mathf.Sin(angleDown));	
 	}
 	
@@ -211,8 +211,12 @@ public class Player : MonoBehaviour {
 	}
 
     void wake(){
-        for (int i = 0; i < phys.Length; i++)
+        for (int i = 0; i < phys.Length; i++){
             phys[i].rigidbody.WakeUp();
+            Block b = (Block)phys[i].GetComponent<Block>();
+            if (b != null)
+                b.wake();
+        }
     }
 
 	private Block getBlock(Collider x){

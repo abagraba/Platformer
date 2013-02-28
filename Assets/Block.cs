@@ -32,6 +32,13 @@ public class Block : MonoBehaviour {
 		return c;	
 	}
 	
+	public void wake(){
+		if (rigidbody != null){
+			rigidbody.AddForce(PC.up()*PC.gravAccel*rigidbody.mass);	
+		}
+			
+	}
+	
 	void Update () {
 		renderer.material.color = getColor();
 		
